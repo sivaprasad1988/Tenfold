@@ -17,8 +17,9 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 # Universal binary (Apple Silicon + Intel); falls back to this Mac's architecture if Intel fails.
 BINARIES=()
 for ARCH in arm64 x86_64; do
-    if swift build -c release --arch "$ARCH"; then
-        BINARIES+=("$(swift build -c release --arch "$ARCH" --show-bin-path)/Tenfold")
+    # Separate scratch path per arch: newer SwiftPM shares one bin path across --arch builds.
+    if swift build -c release --arch "$ARCH" --scratch-path ".build/$ARCH"; then
+        BINARIES+=("$(swift build -c release --arch "$ARCH" --scratch-path ".build/$ARCH" --show-bin-path)/Tenfold")
     else
         echo "⚠️  Build for $ARCH failed – skipping this architecture."
     fi
