@@ -1,0 +1,54 @@
+Install Tenfold - Version: 0.7 - 10 2026
+
+INSTALL TENFOLD
+===============
+
+Tenfold puts a clipboard (last 10 items), music, calendar, weather, screen time,
+focus timer, notes and more into your MacBook's notch.
+
+Requirements
+------------
+- macOS 14 Sonoma or newer (real equalizer: macOS 14.4+)
+- Works best on a MacBook with a notch (other Macs get a small "fake notch")
+
+1. Install
+----------
+1. Unzip "Tenfold-<version>.zip".
+2. Drag "Tenfold.app" into your "Applications" folder.
+
+2. First start (one time only)
+------------------------------
+Tenfold is not from the App Store and not signed with an Apple Developer ID,
+so macOS blocks it the first time. That is expected.
+
+1. Double-click Tenfold.app → macOS shows a warning → click "Done" / "OK".
+2. Open System Settings → Privacy & Security.
+3. Scroll down to "Security" → next to "Tenfold was blocked …" click "Open Anyway".
+4. Confirm with your password / Touch ID and click "Open Anyway" again.
+
+Alternative (Terminal, one line):
+   xattr -dr com.apple.quarantine /Applications/Tenfold.app
+
+3. Using Tenfold
+----------------
+- Move the mouse to the notch → the panel opens.
+- Ctrl + Option + V → clipboard; keys 1–0 paste an item, Esc closes.
+- Gear icon in the panel → Settings (language, weather, screen time …).
+- Quit: Tenfold icon in the menu bar → "Quit Tenfold" (if the icon is hidden by the notch: Terminal → pkill -x Tenfold).
+
+Permissions (macOS asks when a feature is first used – all optional)
+--------------------------------------------------------------------
+- Paste from other apps → clipboard history
+- Calendars → calendar & meeting countdown
+- Automation (Music / Spotify) → now playing & controls
+- Location → weather (or choose a city in Settings)
+- Camera → camera mirror (only while you use it)
+- System Audio Recording → real equalizer (analysed live, nothing recorded)
+- Accessibility → paste directly with Ctrl + Option + V
+- Desktop folder → screenshot shelf
+
+Privacy: all data (clipboard, notes, screen time) stays on your Mac.
+Weather data comes from Open-Meteo.com.
+
+----------------------------------------------------------------------
+Author: Siva

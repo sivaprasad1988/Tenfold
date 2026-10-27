@@ -1,0 +1,10 @@
+"NSCalendarsFullAccessUsageDescription" = "Tenfold pokazuje nadchodzące wydarzenia we wcięciu ekranu.";
+"NSCalendarsUsageDescription" = "Tenfold pokazuje nadchodzące wydarzenia we wcięciu ekranu.";
+"NSAppleEventsUsageDescription" = "Tenfold pokazuje bieżący utwór z Muzyki lub Spotify i steruje odtwarzaniem.";
+"NSLocationUsageDescription" = "Tenfold pokazuje pogodę dla bieżącej lokalizacji we wcięciu ekranu.";
+"NSLocationWhenInUseUsageDescription" = "Tenfold pokazuje pogodę dla bieżącej lokalizacji we wcięciu ekranu.";
+"NSCameraUsageDescription" = "Tenfold pokazuje obraz z kamery we wcięciu ekranu, abyś mógł się sprawdzić przed spotkaniem.";
+"NSDesktopFolderUsageDescription" = "Tenfold pokazuje najnowsze zrzuty ekranu we wcięciu ekranu.";
+"NSDocumentsFolderUsageDescription" = "Tenfold pokazuje najnowsze zrzuty ekranu we wcięciu ekranu.";
+"NSDownloadsFolderUsageDescription" = "Tenfold pokazuje najnowsze zrzuty ekranu we wcięciu ekranu.";
+"NSAudioCaptureUsageDescription" = "Tenfold analizuje dźwięk odtwarzany przez Maca, aby animować korektor. Nic nie jest nagrywane ani zapisywane.";

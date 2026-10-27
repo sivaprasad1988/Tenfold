@@ -1,0 +1,10 @@
+"NSCalendarsFullAccessUsageDescription" = "Tenfold shows your upcoming events in the notch.";
+"NSCalendarsUsageDescription" = "Tenfold shows your upcoming events in the notch.";
+"NSAppleEventsUsageDescription" = "Tenfold shows the current track from Music or Spotify and controls playback.";
+"NSLocationUsageDescription" = "Tenfold shows the weather for your current location in the notch.";
+"NSLocationWhenInUseUsageDescription" = "Tenfold shows the weather for your current location in the notch.";
+"NSCameraUsageDescription" = "Tenfold shows a mirror image of your camera in the notch so you can check yourself before a meeting.";
+"NSDesktopFolderUsageDescription" = "Tenfold shows your latest screenshots in the notch.";
+"NSDocumentsFolderUsageDescription" = "Tenfold shows your latest screenshots in the notch.";
+"NSDownloadsFolderUsageDescription" = "Tenfold shows your latest screenshots in the notch.";
+"NSAudioCaptureUsageDescription" = "Tenfold analyses the sound your Mac plays to animate the equalizer. Nothing is recorded or stored.";

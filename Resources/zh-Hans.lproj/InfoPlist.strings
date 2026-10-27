@@ -1,0 +1,10 @@
+"NSCalendarsFullAccessUsageDescription" = "Tenfold 会在刘海区域显示你接下来的日程。";
+"NSCalendarsUsageDescription" = "Tenfold 会在刘海区域显示你接下来的日程。";
+"NSAppleEventsUsageDescription" = "Tenfold 会显示“音乐”或 Spotify 中正在播放的曲目并控制播放。";
+"NSLocationUsageDescription" = "Tenfold 会在刘海区域显示你当前位置的天气。";
+"NSLocationWhenInUseUsageDescription" = "Tenfold 会在刘海区域显示你当前位置的天气。";
+"NSCameraUsageDescription" = "Tenfold 会在刘海区域显示相机画面，方便你在会议前检查仪容。";
+"NSDesktopFolderUsageDescription" = "Tenfold 会在刘海区域显示你最新的截屏。";
+"NSDocumentsFolderUsageDescription" = "Tenfold 会在刘海区域显示你最新的截屏。";
+"NSDownloadsFolderUsageDescription" = "Tenfold 会在刘海区域显示你最新的截屏。";
+"NSAudioCaptureUsageDescription" = "Tenfold 会分析 Mac 正在播放的声音来驱动均衡器，不会录制或存储任何内容。";

@@ -1,0 +1,13 @@
+*.xcodeproj/xcuserdata/
+.DS_Store
+.build/
+.swiftpm/
+build/
+dist/
+.idea/
+# Local logs and profiling output (contain user paths)
+build.log
+perf*.log
+sample-*.txt
+# Marketing material: raw screen recordings with personal data
+marketing/

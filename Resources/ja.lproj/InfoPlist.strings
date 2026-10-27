@@ -1,0 +1,10 @@
+"NSCalendarsFullAccessUsageDescription" = "Tenfoldはノッチに次の予定を表示します。";
+"NSCalendarsUsageDescription" = "Tenfoldはノッチに次の予定を表示します。";
+"NSAppleEventsUsageDescription" = "TenfoldはミュージックまたはSpotifyで再生中の曲を表示し、再生を操作します。";
+"NSLocationUsageDescription" = "Tenfoldは現在地の天気をノッチに表示します。";
+"NSLocationWhenInUseUsageDescription" = "Tenfoldは現在地の天気をノッチに表示します。";
+"NSCameraUsageDescription" = "Tenfoldは会議前に身だしなみを確認できるよう、カメラの映像をノッチに表示します。";
+"NSDesktopFolderUsageDescription" = "Tenfoldは最新のスクリーンショットをノッチに表示します。";
+"NSDocumentsFolderUsageDescription" = "Tenfoldは最新のスクリーンショットをノッチに表示します。";
+"NSDownloadsFolderUsageDescription" = "Tenfoldは最新のスクリーンショットをノッチに表示します。";
+"NSAudioCaptureUsageDescription" = "Tenfoldはイコライザを動かすためにMacで再生中の音を解析します。録音や保存は行いません。";

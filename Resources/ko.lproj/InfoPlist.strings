@@ -1,0 +1,10 @@
+"NSCalendarsFullAccessUsageDescription" = "Tenfold는 노치에 다가오는 일정을 표시합니다.";
+"NSCalendarsUsageDescription" = "Tenfold는 노치에 다가오는 일정을 표시합니다.";
+"NSAppleEventsUsageDescription" = "Tenfold는 음악 또는 Spotify에서 재생 중인 곡을 표시하고 재생을 제어합니다.";
+"NSLocationUsageDescription" = "Tenfold는 현재 위치의 날씨를 노치에 표시합니다.";
+"NSLocationWhenInUseUsageDescription" = "Tenfold는 현재 위치의 날씨를 노치에 표시합니다.";
+"NSCameraUsageDescription" = "Tenfold는 회의 전에 모습을 확인할 수 있도록 노치에 카메라 화면을 표시합니다.";
+"NSDesktopFolderUsageDescription" = "Tenfold는 최근 스크린샷을 노치에 표시합니다.";
+"NSDocumentsFolderUsageDescription" = "Tenfold는 최근 스크린샷을 노치에 표시합니다.";
+"NSDownloadsFolderUsageDescription" = "Tenfold는 최근 스크린샷을 노치에 표시합니다.";
+"NSAudioCaptureUsageDescription" = "Tenfold는 이퀄라이저를 움직이기 위해 Mac에서 재생되는 소리를 분석합니다. 아무것도 녹음하거나 저장하지 않습니다.";

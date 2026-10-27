@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>Tenfold</string>
+	<key>CFBundleExecutable</key>
+	<string>Tenfold</string>
+	<key>CFBundleIdentifier</key>
+	<string>de.woit.tenfold</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>fr</string>
+		<string>de</string>
+		<string>es</string>
+		<string>pt-BR</string>
+		<string>it</string>
+		<string>ja</string>
+		<string>nl</string>
+		<string>ko</string>
+		<string>pl</string>
+		<string>zh-Hans</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>Tenfold</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.7.1</string>
+	<key>CFBundleVersion</key>
+	<string>8</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Tenfold shows the current track from Music or Spotify and controls playback.</string>
+	<key>NSAudioCaptureUsageDescription</key>
+	<string>Tenfold analyses the sound your Mac plays to animate the equalizer. Nothing is recorded or stored.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Tenfold shows your upcoming events in the notch.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Tenfold shows your upcoming events in the notch.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Tenfold shows a mirror image of your camera in the notch so you can check yourself before a meeting.</string>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>Tenfold shows your latest screenshots in the notch.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Tenfold shows your latest screenshots in the notch.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>Tenfold shows your latest screenshots in the notch.</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSLocationUsageDescription</key>
+	<string>Tenfold shows the weather for your current location in the notch.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Tenfold shows the weather for your current location in the notch.</string>
+</dict>
+</plist>
