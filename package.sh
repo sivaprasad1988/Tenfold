@@ -30,7 +30,12 @@ lipo -create "${BINARIES[@]}" -output "$APP/Contents/MacOS/Tenfold"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp -R Resources/*.lproj "$APP/Contents/Resources/"
 xattr -cr "$APP"
-codesign --force --deep --sign - "$APP"
+if [ -n "${SIGN_ID:-}" ]; then
+    # Developer ID signature with hardened runtime (used by notarize.sh)
+    codesign --force --options runtime --timestamp --entitlements Tenfold.entitlements --sign "$SIGN_ID" "$APP"
+else
+    codesign --force --deep --sign - "$APP"
+fi
 
 cp Install-Tenfold.txt "$OUT/"
 ditto -c -k --keepParent "$OUT" "dist/Tenfold-$VERSION.zip"
