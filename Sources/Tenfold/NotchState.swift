@@ -141,14 +141,18 @@ enum NotchMetrics {
     }
 }
 
-/// What the closed notch shows ("live activity"), by priority: meeting > focus > music.
+/// What the closed notch shows ("live activity"), by priority: agent > meeting > focus > music.
 enum LiveItem: Equatable {
+    case agent(AgentStore.Attention)
     case meeting(title: String, start: Date)
     case focus(phase: FocusTimer.Phase, isRunning: Bool, endDate: Date?, remaining: TimeInterval, duration: TimeInterval)
     case music(MediaController.NowPlaying)
 
     var wing: CGFloat {
-        if case .meeting = self { return NotchMetrics.meetingWing }
+        switch self {
+        case .meeting, .agent: return NotchMetrics.meetingWing
+        default: break
+        }
         return NotchMetrics.liveWing
     }
 }

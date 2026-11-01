@@ -53,6 +53,10 @@ file tray/screenshots, camera mirror and quick controls (volume/brightness).
   (PBKDF2-SHA256 + AES-GCM, `~/Library/Application Support/Tenfold/vault.json`); `FileTrayStore.swift` – file tray
 - `MediaController.swift` – Spotify/Music via osascript; `AudioSpectrum.swift` – real equalizer (process tap + FFT)
 - `SystemHUDMonitor.swift` – volume/brightness; `CalendarStore.swift`, `WeatherStore.swift` (Open-Meteo), `ScreenTimeStore.swift`
+- `AgentStore.swift` – Agent Inbox: Claude Code hooks (installer merges into `~/.claude/settings.json`, backup
+  `.tenfold-backup`; Codex: `~/.codex/hooks.json`) → `agent-hook.sh` writes ids/paths only → `…/Tenfold/agents/*.event`,
+  watched without polling. Codex runs hooks only after `/hooks` trust (hash in `~/.codex/config.toml` `[hooks.state]`);
+  ChatGPT app needs a restart (⌘Q) to pick up new hooks (verified 11 2026)
 - `Extras.swift` – focus timer, notes, screenshots, camera, global hotkey
 - `SettingsWindow.swift`, `Localization.swift`, `Translations.swift`
 

@@ -100,6 +100,7 @@ struct DashboardSettings: View {
 struct GeneralSettings: View {
     @ObservedObject var language: LanguageSettings
     @AppStorage(Prefs.usageEnabled) private var usageEnabled = false
+    @ObservedObject private var agentHooks = AgentHooksModel.shared
 
     var body: some View {
         Form {
@@ -123,6 +124,26 @@ struct GeneralSettings: View {
             }
             Section(L("Usage")) {
                 Toggle(L("Read Claude Code and Codex session logs"), isOn: $usageEnabled)
+            }
+            Section(L("Agent Inbox")) {
+                Text(L("The notch shows when Claude Code or Codex waits for you or has finished. Adds hooks to ~/.claude/settings.json or ~/.codex/hooks.json (backup: .tenfold-backup). Only session ids and folder paths are passed to Tenfold."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                ForEach(AgentHooks.Tool.allCases, id: \.self) { tool in
+                    LabeledContent(LF("%@ hooks", tool.title)) {
+                        Button(agentHooks.installed.contains(tool) ? L("Remove hooks") : L("Install hooks")) {
+                            agentHooks.toggle(tool)
+                        }
+                    }
+                }
+                if agentHooks.installed.contains(.codex) {
+                    Text(L("Codex runs new hooks only after you trust them once: run codex in a terminal and type /hooks."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                if let error = agentHooks.error {
+                    Text(error).font(.caption).foregroundStyle(.red)
+                }
             }
             Section(L("Clipboard shortcut")) {
                 Text(L("⌃⌥V opens the clipboard, keys 1–0 paste an item."))

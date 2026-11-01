@@ -48,6 +48,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         screenTime.start()
         extras.screenshots.start()
         extras.usage.preload()
+        extras.agents.start()
 
         // Real equalizer: analyse system audio only while music plays (and the option is on).
         media.$nowPlaying

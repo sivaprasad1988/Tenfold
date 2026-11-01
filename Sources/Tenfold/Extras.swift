@@ -384,5 +384,6 @@ final class Extras {
     let screenshots = ScreenshotStore()
     let camera = CameraController()
     let usage = UsageStore()
+    let agents = AgentStore()
     let vault = VaultStore()
 }

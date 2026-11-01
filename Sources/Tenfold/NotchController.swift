@@ -94,10 +94,11 @@ final class NotchController {
             }
             .store(in: &cancellables)
 
-        // Closed notch "live activity": meeting > focus timer > music.
+        // Closed notch "live activity": agent > meeting > focus timer > music.
         media.$nowPlaying.map { _ in () }
             .merge(with: extras.focus.objectWillChange.map { _ in () },
-                   calendar.$entries.map { _ in () })
+                   calendar.$entries.map { _ in () },
+                   extras.agents.$attention.map { _ in () })
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in self?.updateLiveItem() }
             .store(in: &cancellables)
@@ -354,7 +355,9 @@ final class NotchController {
     private func updateLiveItem() {
         let focus = extras.focus
         let item: LiveItem?
-        if let meeting = calendar.upcomingMeeting {
+        if let agent = extras.agents.attention {
+            item = .agent(agent)
+        } else if let meeting = calendar.upcomingMeeting {
             item = .meeting(title: meeting.title, start: meeting.start)
         } else if focus.isActive {
             item = .focus(phase: focus.phase, isRunning: focus.isRunning, endDate: focus.endDate,

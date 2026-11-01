@@ -1,4 +1,4 @@
-Install Tenfold - Version: 0.7.3 - 10 2026
+Install Tenfold - Version: 0.8.0 - 11 2026
 
 INSTALL TENFOLD
 ===============
@@ -23,6 +23,10 @@ Requirements
 - Move the mouse to the notch → the panel opens.
 - Ctrl + Option + V → clipboard; keys 1–0 paste an item, Esc closes.
 - Gear icon in the panel → Settings (language, weather, screen time …).
+- Agent Inbox (Claude Code / Codex): Settings → General → Agent Inbox → Install hooks.
+  The notch then shows "Waiting" when your agent asks for permission and "Done"
+  when it has finished. Codex: trust the hooks once with /hooks in the codex CLI,
+  then restart the ChatGPT app.
 - Quit: Tenfold icon in the menu bar → "Quit Tenfold" (if the icon is hidden by the notch: Terminal → pkill -x Tenfold).
 
 Permissions (macOS asks when a feature is first used – all optional)

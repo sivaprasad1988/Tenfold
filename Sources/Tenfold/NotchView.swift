@@ -264,7 +264,7 @@ struct ExpandedContent: View {
                     ToolsTab(focus: extras.focus, notes: extras.notes, camera: extras.camera)
                         .transition(.opacity.combined(with: .scale(scale: 0.98)))
                 case .usage:
-                    UsageTab(store: extras.usage)
+                    UsageTab(store: extras.usage, agents: extras.agents)
                         .transition(.opacity.combined(with: .scale(scale: 0.98)))
                 case .files:
                     FilesTab(store: files, screenshots: extras.screenshots, isTargeted: state.isDropTargeted)
@@ -4455,6 +4455,18 @@ private struct LiveActivityView: View {
     @ViewBuilder
     private var leading: some View {
         switch item {
+        case .agent(let a):
+            HStack(spacing: 5) {
+                Image(systemName: a.status == .waiting ? "exclamationmark.bubble.fill" : "checkmark.circle.fill")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(a.status == .waiting ? Theme.amber : Theme.mint)
+                Text(a.project)
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+            }
+            .padding(.leading, 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
         case .music(let track):
             ArtworkView(nowPlaying: track, size: max(height - 12, 14), radius: 6)
         case .focus(let phase, _, _, _, _):
@@ -4479,6 +4491,13 @@ private struct LiveActivityView: View {
     @ViewBuilder
     private var trailing: some View {
         switch item {
+        case .agent(let a):
+            Text(a.status == .done ? L("Done") : a.count > 1 ? LF("%d waiting", a.count) : L("Waiting"))
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundStyle(a.status == .waiting ? Theme.amber : Theme.mint)
+                .lineLimit(1)
+                .padding(.trailing, 10)
+                .frame(maxWidth: .infinity, alignment: .trailing)
         case .music(let track):
             EqualizerView(isPlaying: track.isPlaying, bars: 4, color: Theme.accent, spacing: 2)
                 .frame(width: 18, height: max(height * 0.4, 10))
@@ -4567,10 +4586,20 @@ private func compactTokens(_ n: Int) -> String {
 
 struct UsageTab: View {
     @ObservedObject var store: UsageStore
+    @ObservedObject var agents: AgentStore
     @AppStorage(Prefs.usageEnabled) private var enabled = false
 
     var body: some View {
-        if enabled { content } else { optIn }
+        if enabled {
+            content
+        } else if agents.sessions.isEmpty {
+            optIn
+        } else {
+            HStack(alignment: .top, spacing: 12) {
+                optIn
+                AgentInboxCard(store: agents).frame(width: 200)
+            }
+        }
     }
 
     /// Session logs contain code and secrets – only read them after the user agrees.
@@ -4596,10 +4625,99 @@ struct UsageTab: View {
                           summary: store.claude, showsPlan: false, isLoading: store.isLoading)
             UsageToolCard(name: "Codex", symbol: "chevron.left.forwardslash.chevron.right", tint: Theme.sky,
                           summary: store.codex, showsPlan: true, isLoading: store.isLoading)
+            if !agents.sessions.isEmpty {
+                AgentInboxCard(store: agents).frame(width: 200)
+            }
             UsageHeatmapCard(store: store)
                 .frame(width: 250)
         }
         .onAppear { store.activate() }
+    }
+}
+
+/// Agent Inbox: Claude Code sessions reported by the Tenfold hooks. Click a row to bring its terminal forward.
+private struct AgentInboxCard: View {
+    @ObservedObject var store: AgentStore
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            SectionLabel(symbol: "tray.full.fill", title: L("Agents"), tint: Theme.amber, trailing: nil)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 4) {
+                    ForEach(sorted) { row($0) }
+                }
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .modifier(GlassCard())
+    }
+
+    /// Waiting first, then by most recent change.
+    private var sorted: [AgentStore.Session] {
+        store.sessions.sorted {
+            ($0.status == .waiting ? 0 : 1, -$0.changed.timeIntervalSince1970)
+                < ($1.status == .waiting ? 0 : 1, -$1.changed.timeIntervalSince1970)
+        }
+    }
+
+    private func row(_ s: AgentStore.Session) -> some View {
+        HStack(spacing: 7) {
+            Image(systemName: symbol(s.status))
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(tint(s.status))
+                .frame(width: 14)
+            VStack(alignment: .leading, spacing: 0) {
+                Text(s.project)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Theme.primary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                Text([s.tool == .codex ? "Codex" : nil, label(s.status), s.changed.formatted(.relative(presentation: .numeric))]
+                        .compactMap { $0 }.joined(separator: " · "))
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(Theme.tertiary)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 0)
+            Button { store.dismiss(s.id) } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundStyle(Theme.tertiary)
+            }
+            .buttonStyle(.plain)
+            .help(L("Remove from list"))
+        }
+        .padding(.vertical, 4)
+        .padding(.horizontal, 6)
+        .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(s.status == .waiting ? 0.08 : 0.03)))
+        .contentShape(Rectangle())
+        .onTapGesture { store.reveal(s) }
+        .help(L("Show terminal"))
+    }
+
+    private func symbol(_ status: AgentStore.Status) -> String {
+        switch status {
+        case .waiting: return "exclamationmark.bubble.fill"
+        case .done: return "checkmark.circle.fill"
+        case .running: return "ellipsis.circle.fill"
+        }
+    }
+
+    private func tint(_ status: AgentStore.Status) -> Color {
+        switch status {
+        case .waiting: return Theme.amber
+        case .done: return Theme.mint
+        case .running: return Theme.sky
+        }
+    }
+
+    private func label(_ status: AgentStore.Status) -> String {
+        switch status {
+        case .waiting: return L("Waiting")
+        case .done: return L("Done")
+        case .running: return L("Working")
+        }
     }
 }
 
