@@ -2270,11 +2270,12 @@ private struct CardStyle: ViewModifier {
 }
 
 private struct RemoveBadge: View {
+    var symbol = "xmark"
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: "xmark")
+            Image(systemName: symbol)
                 .font(.system(size: 8, weight: .bold))
                 .foregroundStyle(.white)
                 .frame(width: 16, height: 16)
@@ -2693,7 +2694,13 @@ private struct ClipEntry: View {
         .buttonStyle(.plain)
         .overlay(alignment: .topTrailing) {
             if hovering && !isCopied {
-                RemoveBadge(action: onRemove).padding(-4)
+                HStack(spacing: -6) {
+                    if let onMoveToVault {
+                        RemoveBadge(symbol: "lock.fill", action: onMoveToVault).help(L("Move to Vault"))
+                    }
+                    RemoveBadge(action: onRemove)
+                }
+                .padding(-4)
             }
         }
         .contextMenu {
