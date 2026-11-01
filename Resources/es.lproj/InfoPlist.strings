@@ -1,8 +1,8 @@
 "NSCalendarsFullAccessUsageDescription" = "Tenfold muestra tus próximos eventos en el notch.";
 "NSCalendarsUsageDescription" = "Tenfold muestra tus próximos eventos en el notch.";
 "NSAppleEventsUsageDescription" = "Tenfold muestra la canción actual de Música o Spotify y controla la reproducción.";
-"NSLocationUsageDescription" = "Tenfold muestra el tiempo de tu ubicación actual en el notch.";
-"NSLocationWhenInUseUsageDescription" = "Tenfold muestra el tiempo de tu ubicación actual en el notch.";
+"NSLocationUsageDescription" = "Tenfold muestra el tiempo de tu ubicación actual en el notch. Tu ubicación aproximada (con precisión de 1 km) se envía a Open-Meteo.com para obtener el pronóstico.";
+"NSLocationWhenInUseUsageDescription" = "Tenfold muestra el tiempo de tu ubicación actual en el notch. Tu ubicación aproximada (con precisión de 1 km) se envía a Open-Meteo.com para obtener el pronóstico.";
 "NSCameraUsageDescription" = "Tenfold muestra la imagen de tu cámara en el notch para que te revises antes de una reunión.";
 "NSDesktopFolderUsageDescription" = "Tenfold muestra tus capturas más recientes en el notch.";
 "NSDocumentsFolderUsageDescription" = "Tenfold muestra tus capturas más recientes en el notch.";

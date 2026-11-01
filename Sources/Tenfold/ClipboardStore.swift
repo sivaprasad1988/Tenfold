@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import Security
 
 /// Watches the general pasteboard and keeps the 50 most recent text/image/file items (in memory only).
 @MainActor
@@ -15,6 +16,10 @@ final class ClipboardStore: ObservableObject {
     private let pasteboard = NSPasteboard.general
     private var lastChangeCount: Int
     private var timer: Timer?
+    /// A password manager was frontmost at some point since the last poll (copy, then quick app switch).
+    private var passwordManagerSeen = false
+    /// False if the keychain could not be read – then pinned texts are never written back (no data loss).
+    private var pinnedReadable = true
 
     /// Markers used by password managers & co. (see nspasteboard.org) – never stored.
     private let ignoredTypes: Set<String> = [
@@ -34,21 +39,41 @@ final class ClipboardStore: ObservableObject {
 
     init() {
         lastChangeCount = pasteboard.changeCount
-        // Pinned text items survive restarts (images only for the session).
-        let pinned = UserDefaults.standard.stringArray(forKey: Self.pinnedKey) ?? []
-        items = pinned.prefix(Self.maxItems).map { ClipItem(content: .text($0), date: Date(), isPinned: true) }
+        // Pinned text items survive restarts (images only for the session) – stored in the keychain.
+        var pinned = PinnedKeychain.load()
+        pinnedReadable = pinned != nil
+        // One-time move out of the readable preferences plist.
+        if let legacy = UserDefaults.standard.stringArray(forKey: Self.pinnedKey), pinned != nil {
+            let merged = (pinned ?? []) + legacy.filter { !(pinned ?? []).contains($0) }
+            if PinnedKeychain.save(merged) {
+                UserDefaults.standard.removeObject(forKey: Self.pinnedKey)
+                pinned = merged
+            }
+        }
+        // Keychain unreadable: still show the not-yet-migrated pins (read-only, see savePinned).
+        items = (pinned ?? UserDefaults.standard.stringArray(forKey: Self.pinnedKey) ?? []).prefix(Self.maxItems).map { ClipItem(content: .text($0), date: Date(), isPinned: true) }
     }
 
-    /// True if the app in front (the one that most likely just copied) is a password manager.
-    private func copiedFromPasswordManager() -> Bool {
-        guard UserDefaults.standard.bool(forKey: Prefs.ignorePasswordManagers),
-              let app = NSWorkspace.shared.frontmostApplication else { return false }
+    private static func isPasswordManager(_ app: NSRunningApplication?) -> Bool {
+        guard let app else { return false }
         let haystack = "\(app.bundleIdentifier ?? "") \(app.localizedName ?? "")".lowercased()
-        return Self.passwordManagerHints.contains { haystack.contains($0) }
+        return passwordManagerHints.contains { haystack.contains($0) }
+    }
+
+    /// True if a password manager is in front now or was since the last poll.
+    private func copiedFromPasswordManager() -> Bool {
+        guard UserDefaults.standard.bool(forKey: Prefs.ignorePasswordManagers) else { return false }
+        return passwordManagerSeen || Self.isPasswordManager(NSWorkspace.shared.frontmostApplication)
     }
 
     func start() {
         timer?.invalidate()
+        if Self.isPasswordManager(NSWorkspace.shared.frontmostApplication) { passwordManagerSeen = true }
+        _ = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
+            let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+            MainActor.assumeIsolated { if Self.isPasswordManager(app) { self?.passwordManagerSeen = true } }
+        }
         let t = Timer(timeInterval: 0.5, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.poll() }
         }
@@ -58,9 +83,14 @@ final class ClipboardStore: ObservableObject {
 
     private func poll() {
         let count = pasteboard.changeCount
-        guard count != lastChangeCount else { return }
-        lastChangeCount = count
-        capture()
+        if count != lastChangeCount {
+            lastChangeCount = count
+            capture()
+        }
+        // Forget the password manager only once it is no longer in front.
+        if passwordManagerSeen, !Self.isPasswordManager(NSWorkspace.shared.frontmostApplication) {
+            passwordManagerSeen = false
+        }
     }
 
     private func capture() {
@@ -151,7 +181,8 @@ final class ClipboardStore: ObservableObject {
             guard $0.isPinned, case .text(let s) = $0.content else { return nil }
             return s
         }
-        UserDefaults.standard.set(texts, forKey: Self.pinnedKey)
+        guard pinnedReadable else { return }
+        PinnedKeychain.save(texts)
     }
 
     /// Puts the item back on the clipboard (user then presses ⌘V).
@@ -182,4 +213,34 @@ final class ClipboardStore: ObservableObject {
 
     /// Clears the history but keeps pinned items.
     func clear() { items.removeAll { !$0.isPinned } }
+}
+
+/// Pinned texts live in the login keychain instead of the preferences plist (readable by any process).
+private enum PinnedKeychain {
+    private static let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+                                               kSecAttrService as String: "de.woit.tenfold.pinned",
+                                               kSecAttrAccount as String: "pinnedTexts"]
+
+    /// Stored texts, `[]` if none yet, `nil` if the keychain could not be read.
+    static func load() -> [String]? {
+        var q = query
+        q[kSecReturnData as String] = true
+        q[kSecMatchLimit as String] = kSecMatchLimitOne
+        var out: CFTypeRef?
+        switch SecItemCopyMatching(q as CFDictionary, &out) {
+        case errSecSuccess: return (out as? Data).flatMap { try? JSONDecoder().decode([String].self, from: $0) }
+        case errSecItemNotFound: return []
+        default: return nil
+        }
+    }
+
+    @discardableResult
+    static func save(_ texts: [String]) -> Bool {
+        guard let data = try? JSONEncoder().encode(texts) else { return false }
+        let status = SecItemUpdate(query as CFDictionary, [kSecValueData as String: data] as CFDictionary)
+        guard status == errSecItemNotFound else { return status == errSecSuccess }
+        var q = query
+        q[kSecValueData as String] = data
+        return SecItemAdd(q as CFDictionary, nil) == errSecSuccess
+    }
 }

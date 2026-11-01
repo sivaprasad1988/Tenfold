@@ -181,16 +181,20 @@ final class CalendarStore: ObservableObject {
                       joinURL: meetingLink(in: [ev.url?.absoluteString, ev.location, ev.notes]))
     }
 
-    private static let meetingPattern = try? NSRegularExpression(
-        pattern: #"https?://[^\s<>"']*(teams\.microsoft\.com|teams\.live\.com|zoom\.us|meet\.google\.com|webex\.com|whereby\.com|gotomeeting\.com|meet\.jit\.si)[^\s<>"']*"#,
-        options: [.caseInsensitive])
+    private static let meetingHosts = ["teams.microsoft.com", "teams.live.com", "zoom.us", "meet.google.com",
+                                       "webex.com", "whereby.com", "gotomeeting.com", "meet.jit.si"]
+    private static let urlPattern = try? NSRegularExpression(pattern: #"https://[^\s<>"']+"#, options: [.caseInsensitive])
 
+    /// First HTTPS link whose *host* is a known meeting service (invites can come from anyone –
+    /// `https://evil.example/zoom.us` must not pass).
     private static func meetingLink(in fields: [String?]) -> URL? {
-        guard let regex = meetingPattern else { return nil }
+        guard let regex = urlPattern else { return nil }
         for case let text? in fields {
-            let range = NSRange(text.startIndex..., in: text)
-            if let match = regex.firstMatch(in: text, range: range), let r = Range(match.range, in: text) {
-                return URL(string: String(text[r]))
+            for match in regex.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
+                guard let r = Range(match.range, in: text), let url = URL(string: String(text[r])),
+                      let host = url.host?.lowercased(),
+                      meetingHosts.contains(where: { host == $0 || host.hasSuffix("." + $0) }) else { continue }
+                return url
             }
         }
         return nil

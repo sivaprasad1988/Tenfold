@@ -55,8 +55,8 @@
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSLocationUsageDescription</key>
-	<string>Tenfold shows the weather for your current location in the notch.</string>
+	<string>Tenfold shows the weather for your current location in the notch. Your approximate location (about 1 km) is sent to Open-Meteo.com to get the forecast.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Tenfold shows the weather for your current location in the notch.</string>
+	<string>Tenfold shows the weather for your current location in the notch. Your approximate location (about 1 km) is sent to Open-Meteo.com to get the forecast.</string>
 </dict>
 </plist>

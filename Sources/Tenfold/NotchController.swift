@@ -59,6 +59,7 @@ final class NotchController {
         panel.hasShadow = false
         panel.level = .statusBar
         panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
+        panel.sharingType = .none                // keep clipboard, calendar, notes out of screen shares/recordings
         panel.isMovable = false
         panel.hidesOnDeactivate = false
         panel.isReleasedWhenClosed = false       // we own the panel; avoid double release on close()

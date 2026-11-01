@@ -39,6 +39,14 @@ The app is only ad-hoc signed. After a rebuild macOS may ask for these permissio
 
 Clear Clipboard History · Clear File Tray · Show Volume HUD (on/off) · Show Brightness HUD (on/off) · Quit
 
+## Privacy
+
+- **Clipboard history** stays in memory. Pinned texts are stored in the login keychain. Copies marked as concealed (password managers) are never stored.
+- **Vault** (Clipboard → Vault): secrets are encrypted with your PIN or password (PBKDF2-SHA256 + AES-GCM) in `~/Library/Application Support/Tenfold/vault.json`. It locks after 5 min, on sleep and on screen lock. Copied secrets are cleared from the clipboard after 30 s. A forgotten PIN cannot be recovered; the vault can only be erased.
+- **Weather**: your approximate location (rounded to about 1 km) or the city you type is sent to [Open-Meteo.com](https://open-meteo.com) to get the forecast. Nothing else leaves the Mac.
+- **Usage tab**: reads Claude Code / Codex session logs only after you enable it. Only token counts are kept.
+- The notch panel is excluded from screen sharing and screen recordings.
+
 ## Known limitations
 
 - History and file tray are kept in memory only (cleared on quit).
