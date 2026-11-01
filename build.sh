@@ -18,6 +18,7 @@ cp .build/release/Tenfold "$APP/Contents/MacOS/Tenfold"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 mkdir -p "$APP/Contents/Resources"
 cp -R Resources/*.lproj "$APP/Contents/Resources/"   # localized permission texts
+cp Resources/AppIcon.icns "$APP/Contents/Resources/"   # app icon (tools/make_icon.swift)
 codesign --force --sign - "$APP"   # ad-hoc signature for local use
 
 echo "Built $APP  ->  run with: open $APP"

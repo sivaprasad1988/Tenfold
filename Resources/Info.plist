@@ -8,6 +8,8 @@
 	<string>Tenfold</string>
 	<key>CFBundleExecutable</key>
 	<string>Tenfold</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>de.woit.tenfold</string>
 	<key>CFBundleLocalizations</key>
