@@ -99,6 +99,7 @@ struct DashboardSettings: View {
 
 struct GeneralSettings: View {
     @ObservedObject var language: LanguageSettings
+    @AppStorage(Prefs.usageEnabled) private var usageEnabled = false
 
     var body: some View {
         Form {
@@ -119,6 +120,9 @@ struct GeneralSettings: View {
                         Text(mode.title).tag(mode)
                     }
                 }
+            }
+            Section(L("Usage")) {
+                Toggle(L("Read Claude Code and Codex session logs"), isOn: $usageEnabled)
             }
             Section(L("Clipboard shortcut")) {
                 Text(L("⌃⌥V opens the clipboard, keys 1–0 paste an item."))

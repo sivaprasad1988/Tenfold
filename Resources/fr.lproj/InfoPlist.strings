@@ -1,8 +1,8 @@
 "NSCalendarsFullAccessUsageDescription" = "Tenfold affiche vos prochains événements dans l’encoche.";
 "NSCalendarsUsageDescription" = "Tenfold affiche vos prochains événements dans l’encoche.";
 "NSAppleEventsUsageDescription" = "Tenfold affiche le morceau en cours de Musique ou Spotify et contrôle la lecture.";
-"NSLocationUsageDescription" = "Tenfold affiche la météo de votre position actuelle dans l’encoche.";
-"NSLocationWhenInUseUsageDescription" = "Tenfold affiche la météo de votre position actuelle dans l’encoche.";
+"NSLocationUsageDescription" = "Tenfold affiche la météo de votre position actuelle dans l’encoche. Votre position approximative (à 1 km près) est envoyée à Open-Meteo.com pour obtenir les prévisions.";
+"NSLocationWhenInUseUsageDescription" = "Tenfold affiche la météo de votre position actuelle dans l’encoche. Votre position approximative (à 1 km près) est envoyée à Open-Meteo.com pour obtenir les prévisions.";
 "NSCameraUsageDescription" = "Tenfold affiche l’image de votre caméra dans l’encoche pour vérifier votre apparence avant une réunion.";
 "NSDesktopFolderUsageDescription" = "Tenfold affiche vos dernières captures d’écran dans l’encoche.";
 "NSDocumentsFolderUsageDescription" = "Tenfold affiche vos dernières captures d’écran dans l’encoche.";

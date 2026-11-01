@@ -51,6 +51,7 @@ enum Prefs {
     static let realEqualizer = "media.realEqualizer"
     static let displayMode = "display.mode"          // all | builtin | main
     static let dashboardHidden = "dashboard.hiddenSections"
+    static let usageEnabled = "usage.enabled"        // opt-in: read Claude Code / Codex logs
 }
 
 /// The eight sections of the Dashboard grid, in display order.

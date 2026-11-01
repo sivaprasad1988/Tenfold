@@ -1,8 +1,8 @@
 "NSCalendarsFullAccessUsageDescription" = "Tenfold toont je volgende afspraken in de notch.";
 "NSCalendarsUsageDescription" = "Tenfold toont je volgende afspraken in de notch.";
 "NSAppleEventsUsageDescription" = "Tenfold toont het huidige nummer uit Muziek of Spotify en bedient het afspelen.";
-"NSLocationUsageDescription" = "Tenfold toont het weer op je huidige locatie in de notch.";
-"NSLocationWhenInUseUsageDescription" = "Tenfold toont het weer op je huidige locatie in de notch.";
+"NSLocationUsageDescription" = "Tenfold toont het weer op je huidige locatie in de notch. Je locatie bij benadering (ca. 1 km) wordt naar Open-Meteo.com gestuurd om de verwachting op te halen.";
+"NSLocationWhenInUseUsageDescription" = "Tenfold toont het weer op je huidige locatie in de notch. Je locatie bij benadering (ca. 1 km) wordt naar Open-Meteo.com gestuurd om de verwachting op te halen.";
 "NSCameraUsageDescription" = "Tenfold toont je camerabeeld in de notch zodat je jezelf vóór een meeting kunt checken.";
 "NSDesktopFolderUsageDescription" = "Tenfold toont je nieuwste schermafbeeldingen in de notch.";
 "NSDocumentsFolderUsageDescription" = "Tenfold toont je nieuwste schermafbeeldingen in de notch.";

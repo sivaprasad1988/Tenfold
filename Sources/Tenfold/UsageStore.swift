@@ -78,7 +78,8 @@ final class UsageStore: ObservableObject {
     }
 
     func refresh() {
-        guard !scanning else { return }
+        // Opt-in (Settings → General): the logs contain code and secrets.
+        guard !scanning, UserDefaults.standard.bool(forKey: Prefs.usageEnabled) else { return }
         scanning = true
         let scanner = scanner
         Task.detached(priority: .utility) {
@@ -199,6 +200,7 @@ actor UsageScanner {
                 start = pending.index(after: nl)
             }
             pending = Data(pending[start...])                // keep an unfinished last line for next time
+            if pending.count > 16 << 20 { offset = size; break }   // 16 MB without a newline is no log line – skip the file
         }
         offsets[key] = offset
     }

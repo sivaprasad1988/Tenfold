@@ -258,7 +258,7 @@ struct ExpandedContent: View {
                 case .screenTime:
                     ScreenTimeTab(store: screenTime).transition(.opacity.combined(with: .scale(scale: 0.98)))
                 case .clipboard:
-                    ClipboardTab(store: clipboard, keyboardMode: state.keyboardMode)
+                    ClipboardTab(store: clipboard, vault: extras.vault, keyboardMode: state.keyboardMode)
                         .transition(.opacity.combined(with: .scale(scale: 0.98)))
                 case .tools:
                     ToolsTab(focus: extras.focus, notes: extras.notes, camera: extras.camera)
@@ -2270,11 +2270,12 @@ private struct CardStyle: ViewModifier {
 }
 
 private struct RemoveBadge: View {
+    var symbol = "xmark"
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: "xmark")
+            Image(systemName: symbol)
                 .font(.system(size: 8, weight: .bold))
                 .foregroundStyle(.white)
                 .frame(width: 16, height: 16)
@@ -2290,7 +2291,11 @@ private struct RemoveBadge: View {
 
 struct ClipboardTab: View {
     @ObservedObject var store: ClipboardStore
+    @ObservedObject var vault: VaultStore
     var keyboardMode = false
+
+    /// ⌃⌥V keyboard mode always shows the history (keys 1–0 paste from it).
+    private var showsVault: Bool { vault.showing && !keyboardMode }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -2314,8 +2319,11 @@ struct ClipboardTab: View {
                 .font(.system(size: 11, weight: .semibold))
                 .transition(.opacity)
             }
-            ClipSearchField(query: $store.query)
-            columns
+            HStack(spacing: 8) {
+                if showsVault { Spacer(minLength: 0) } else { ClipSearchField(query: $store.query) }
+                VaultToggle(active: showsVault) { withAnimation(Theme.spring) { vault.showing.toggle() } }
+            }
+            if showsVault { VaultView(vault: vault) } else { columns }
         }
     }
 
@@ -2329,13 +2337,226 @@ struct ClipboardTab: View {
         return HStack(alignment: .top, spacing: 0) {
             ForEach(kinds, id: \.self) { kind in
                 if kind != kinds.first { Rectangle().fill(Theme.divider).frame(width: 1) }
-                ClipColumn(kind: kind, items: items.filter { $0.kind == kind }, store: store, shortcuts: shortcuts)
+                ClipColumn(kind: kind, items: items.filter { $0.kind == kind }, store: store, shortcuts: shortcuts,
+                           vault: vault)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .modifier(GlassCard(radius: 14))
         .animation(Theme.spring, value: items.map(\.id))
+    }
+}
+
+private struct VaultToggle: View {
+    let active: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 5) {
+                Image(systemName: "lock.fill")
+                Text(L("Vault"))
+            }
+            .font(.system(size: 12, weight: .semibold))
+            .foregroundStyle(active ? Color.black : Theme.primary)
+            .padding(.horizontal, 10)
+            .frame(height: 28)
+            .background(Capsule().fill(active ? Theme.accent : Theme.fill))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+/// Personal clipboard for secrets (PIN / password protected, see `VaultStore`).
+private struct VaultView: View {
+    @ObservedObject var vault: VaultStore
+
+    var body: some View {
+        Group {
+            switch vault.phase {
+            case .setup: setup
+            case .locked: locked
+            case .unlocked: unlocked
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .modifier(GlassCard(radius: 14))
+        .animation(Theme.spring, value: vault.entries)
+    }
+
+    private var setup: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "lock.shield").font(.system(size: 22)).foregroundStyle(Theme.accent)
+            Text(L("Create a PIN or password for your vault. Secrets are encrypted and stay on this Mac."))
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.secondary)
+                .multilineTextAlignment(.center)
+            VaultField(placeholder: LF("PIN or password (%d+ characters)", VaultStore.minPasscode),
+                       text: $vault.passcode, secure: true)
+            VaultField(placeholder: L("Repeat PIN or password"), text: $vault.confirm, secure: true) { vault.create() }
+            pendingHint(L("The clipboard item moves here once the vault is open."))
+            errorLine
+            action(L("Create vault")) { vault.create() }
+        }
+        .frame(maxWidth: 300)
+    }
+
+    private var locked: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "lock.fill").font(.system(size: 22)).foregroundStyle(Theme.accent)
+            VaultField(placeholder: L("PIN or password"), text: $vault.passcode, secure: true) { vault.unlock() }
+            pendingHint(L("The clipboard item moves here once the vault is open."))
+            errorLine
+            action(L("Unlock")) { vault.unlock() }
+            if vault.confirmErase {
+                HStack(spacing: 10) {
+                    Text(L("Erase all secrets? This cannot be undone.")).foregroundStyle(Theme.coral)
+                    Button(L("Erase")) { vault.erase() }.foregroundStyle(Theme.coral)
+                    Button(L("Cancel")) { vault.confirmErase = false }.foregroundStyle(Theme.secondary)
+                }
+                .font(.system(size: 11, weight: .semibold))
+                .buttonStyle(.plain)
+            } else {
+                Button(L("Forgot it? Erase vault")) { vault.confirmErase = true }
+                    .font(.system(size: 11))
+                    .foregroundStyle(Theme.tertiary)
+                    .buttonStyle(.plain)
+            }
+        }
+        .frame(maxWidth: 260)
+    }
+
+    private var unlocked: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                VaultField(placeholder: L("Label"), text: $vault.draftLabel).frame(width: 160)
+                VaultField(placeholder: L("Secret"), text: $vault.draftSecret, secure: true) { vault.add() }
+                IconButton(symbol: "plus", help: L("Add")) { vault.add() }
+                IconButton(symbol: "lock", help: L("Lock")) { vault.lock() }
+            }
+            pendingHint(L("Name it and press ↩ to move it out of the clipboard history."))
+            errorLine
+            if vault.entries.isEmpty {
+                Text(L("No secrets yet"))
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.tertiary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView(.vertical, showsIndicators: false) {
+                    LazyVStack(spacing: 4) {
+                        ForEach(vault.entries) { entry in
+                            VaultRow(entry: entry,
+                                     revealed: vault.revealed.contains(entry.id),
+                                     copied: vault.copiedID == entry.id,
+                                     onCopy: { vault.copy(entry) },
+                                     onReveal: { vault.toggleReveal(entry) },
+                                     onRemove: { vault.remove(entry) })
+                        }
+                    }
+                }
+            }
+            Text(L("Copied secrets are cleared from the clipboard after 30 s. The vault locks after 5 min."))
+                .font(.system(size: 10))
+                .foregroundStyle(Theme.tertiary)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    @ViewBuilder private func pendingHint(_ text: String) -> some View {
+        if vault.hasPendingMove {
+            Text(text).font(.system(size: 11, weight: .medium)).foregroundStyle(Theme.accent)
+        }
+    }
+
+    @ViewBuilder private var errorLine: some View {
+        if let error = vault.error {
+            Text(error).font(.system(size: 11, weight: .medium)).foregroundStyle(Theme.coral)
+        }
+    }
+
+    @ViewBuilder private func action(_ title: String, _ run: @escaping () -> Void) -> some View {
+        if vault.busy {
+            ProgressView().controlSize(.small).environment(\.colorScheme, .dark)
+        } else {
+            PillButton(title: title, action: run)
+        }
+    }
+}
+
+private struct VaultField: View {
+    let placeholder: String
+    @Binding var text: String
+    var secure = false
+    var onSubmit: () -> Void = {}
+
+    var body: some View {
+        Group {
+            if secure {
+                SecureField("", text: $text, prompt: Text(placeholder).foregroundColor(Theme.tertiary))
+            } else {
+                TextField("", text: $text, prompt: Text(placeholder).foregroundColor(Theme.tertiary))
+            }
+        }
+        .textFieldStyle(.plain)
+        .font(.system(size: 13))
+        .foregroundStyle(Theme.primary)
+        .onSubmit(onSubmit)
+        .padding(.horizontal, 10)
+        .frame(height: 28)
+        .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Theme.fill))
+    }
+}
+
+private struct VaultRow: View {
+    let entry: VaultEntry
+    let revealed: Bool
+    let copied: Bool
+    let onCopy: () -> Void
+    let onReveal: () -> Void
+    let onRemove: () -> Void
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "key.fill").font(.system(size: 12)).foregroundStyle(Theme.amber)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(entry.label)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Theme.primary)
+                    .lineLimit(1)
+                // Fixed mask: don't leak the secret's length.
+                Text(revealed ? entry.secret : "••••••••")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(Theme.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+            Spacer(minLength: 0)
+            if copied {
+                Text(L("Copied")).font(.system(size: 11, weight: .semibold)).foregroundStyle(Theme.accent)
+            }
+            rowButton(revealed ? "eye.slash" : "eye", help: revealed ? L("Hide") : L("Show"), action: onReveal)
+            rowButton("doc.on.doc", help: L("Copy"), action: onCopy)
+            rowButton("trash", help: L("Remove"), action: onRemove)
+        }
+        .padding(.horizontal, 10)
+        .frame(height: 40)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Theme.fill))
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onCopy)
+    }
+
+    private func rowButton(_ symbol: String, help: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Theme.secondary)
+                .frame(width: 24, height: 24)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(help)
     }
 }
 
@@ -2371,6 +2592,7 @@ private struct ClipColumn: View {
     let items: [ClipItem]
     @ObservedObject var store: ClipboardStore
     let shortcuts: [UUID: Int]
+    let vault: VaultStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -2411,8 +2633,15 @@ private struct ClipColumn: View {
                       isCopied: store.lastCopiedID == item.id,
                       onCopy: { store.copy(item) },
                       onRemove: { store.remove(item) },
-                      onPin: { store.togglePin(item) })
+                      onPin: { store.togglePin(item) },
+                      onMoveToVault: moveToVault(item))
         }
+    }
+
+    /// Text items only (links, code, colours included).
+    private func moveToVault(_ item: ClipItem) -> (() -> Void)? {
+        guard case .text(let text) = item.content else { return nil }
+        return { withAnimation(Theme.spring) { vault.moveIn(text) { store.remove(item) } } }
     }
 
     private var title: String {
@@ -2434,6 +2663,7 @@ private struct ClipEntry: View {
     let onCopy: () -> Void
     let onRemove: () -> Void
     let onPin: () -> Void
+    var onMoveToVault: (() -> Void)?
 
     @ObservedObject private var hover = HoverTracker.shared
     private var hoverID: String { "clip-\(item.id.uuidString)" }
@@ -2464,11 +2694,18 @@ private struct ClipEntry: View {
         .buttonStyle(.plain)
         .overlay(alignment: .topTrailing) {
             if hovering && !isCopied {
-                RemoveBadge(action: onRemove).padding(-4)
+                HStack(spacing: -6) {
+                    if let onMoveToVault {
+                        RemoveBadge(symbol: "lock.fill", action: onMoveToVault).help(L("Move to Vault"))
+                    }
+                    RemoveBadge(action: onRemove)
+                }
+                .padding(-4)
             }
         }
         .contextMenu {
             Button(item.isPinned ? L("Unpin") : L("Pin"), action: onPin)
+            if let onMoveToVault { Button(L("Move to Vault"), action: onMoveToVault) }
             Button(L("Remove"), action: onRemove)
         }
         .animation(.easeOut(duration: 0.15), value: isCopied)
@@ -4330,8 +4567,30 @@ private func compactTokens(_ n: Int) -> String {
 
 struct UsageTab: View {
     @ObservedObject var store: UsageStore
+    @AppStorage(Prefs.usageEnabled) private var enabled = false
 
     var body: some View {
+        if enabled { content } else { optIn }
+    }
+
+    /// Session logs contain code and secrets – only read them after the user agrees.
+    private var optIn: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "chart.bar.xaxis")
+                .font(.system(size: 22))
+                .foregroundStyle(Theme.accent)
+            Text(L("Show token usage by reading the local Claude Code and Codex session logs? Only numbers are read; nothing leaves this Mac."))
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 360)
+            PillButton(title: L("Enable")) { enabled = true }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .modifier(GlassCard())
+    }
+
+    private var content: some View {
         HStack(alignment: .top, spacing: 12) {
             UsageToolCard(name: "Claude Code", symbol: "sparkle", tint: Theme.accent,
                           summary: store.claude, showsPlan: false, isLoading: store.isLoading)

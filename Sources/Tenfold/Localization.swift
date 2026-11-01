@@ -83,7 +83,7 @@ enum Localization {
         let path = Bundle.main.bundlePath
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/bin/sh")
-        task.arguments = ["-c", "sleep 0.8; /usr/bin/open \"\(path)\""]
+        task.arguments = ["-c", "sleep 0.8; /usr/bin/open \"$1\"", "sh", path]   // path as $1, never parsed by the shell
         try? task.run()
         NSApp.terminate(nil)
     }

@@ -1,8 +1,8 @@
 "NSCalendarsFullAccessUsageDescription" = "Tenfoldはノッチに次の予定を表示します。";
 "NSCalendarsUsageDescription" = "Tenfoldはノッチに次の予定を表示します。";
 "NSAppleEventsUsageDescription" = "TenfoldはミュージックまたはSpotifyで再生中の曲を表示し、再生を操作します。";
-"NSLocationUsageDescription" = "Tenfoldは現在地の天気をノッチに表示します。";
-"NSLocationWhenInUseUsageDescription" = "Tenfoldは現在地の天気をノッチに表示します。";
+"NSLocationUsageDescription" = "Tenfoldは現在地の天気をノッチに表示します。予報を取得するため、おおよその位置情報（約1km）がOpen-Meteo.comに送信されます。";
+"NSLocationWhenInUseUsageDescription" = "Tenfoldは現在地の天気をノッチに表示します。予報を取得するため、おおよその位置情報（約1km）がOpen-Meteo.comに送信されます。";
 "NSCameraUsageDescription" = "Tenfoldは会議前に身だしなみを確認できるよう、カメラの映像をノッチに表示します。";
 "NSDesktopFolderUsageDescription" = "Tenfoldは最新のスクリーンショットをノッチに表示します。";
 "NSDocumentsFolderUsageDescription" = "Tenfoldは最新のスクリーンショットをノッチに表示します。";
