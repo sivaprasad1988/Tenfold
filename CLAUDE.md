@@ -1,4 +1,4 @@
-# Tenfold – Project Guide for Claude Code - Version: 02 - 10 2026
+# Tenfold – Project Guide for Claude Code - Version: 03 - 11 2026
 
 Tenfold is a macOS menu-bar/notch app (Swift Package, SwiftUI + AppKit). Hovering over the notch opens a
 panel with clipboard history (last 10 items), music, calendar, weather, screen time, focus timer, notes,
@@ -35,18 +35,22 @@ file tray/screenshots, camera mirror and quick controls (volume/brightness).
 - Never edit files inside `build/` or `dist/` app bundles after signing (breaks the signature) – rebuild instead.
 - Bump the version in `Resources/Info.plist` before sending a new build to others; share only notarized builds.
 - New hardened-runtime features (e.g. microphone, contacts) need a matching entry in `Tenfold.entitlements`.
+  The real equalizer (Core Audio process tap) needs no `audio-input` entitlement (verified 11 2026, 0.7.4).
 - Performance targets (measured 10 2026, M1 Pro): idle ≈ 2 % CPU, panel open with music ≈ 4–5 %.
   Keep high-frequency updates out of SwiftUI: spectrum bars render via CALayer (`SpectrumBarsNSView`),
   `AudioSpectrum.bands` is intentionally not `@Published`. TimelineViews ≥ 1 s except animated fallback bars.
 - Do not add audio/meeting transcription without explicit approval (legal: §201 StGB, GDPR).
 - Clipboard must keep skipping password-manager content (ConcealedType, Enpass etc.).
+- Privacy: pinned clips live in the keychain (not UserDefaults); notch panel `sharingType = .none`;
+  Usage tab reads Claude Code/Codex logs only after opt-in (`Prefs.usageEnabled`); weather sends ~1 km coordinates.
 
 ## Code map (Sources/Tenfold)
 - `main.swift`, `AppDelegate.swift` – startup, stores, status menu, hotkey ⌃⌥V, one notch per display
 - `NotchController.swift` – panel window, hover/mouse tracking, open/close morph, HUD, keyboard mode
 - `NotchState.swift` – tabs, metrics, Prefs, HoverTracker, display helpers
 - `NotchView.swift` – all SwiftUI views (Dashboard grid 4×2, tabs, Dock, Theme)
-- `ClipboardStore.swift`, `ClipItem.swift` – clipboard history; `FileTrayStore.swift` – file tray
+- `ClipboardStore.swift`, `ClipItem.swift` – clipboard history; `Vault.swift` – encrypted clipboard vault
+  (PBKDF2-SHA256 + AES-GCM, `~/Library/Application Support/Tenfold/vault.json`); `FileTrayStore.swift` – file tray
 - `MediaController.swift` – Spotify/Music via osascript; `AudioSpectrum.swift` – real equalizer (process tap + FFT)
 - `SystemHUDMonitor.swift` – volume/brightness; `CalendarStore.swift`, `WeatherStore.swift` (Open-Meteo), `ScreenTimeStore.swift`
 - `Extras.swift` – focus timer, notes, screenshots, camera, global hotkey
